@@ -3,11 +3,10 @@ const admin = require('firebase-admin');
 
 admin.initializeApp();
 
-exports.helloWorld = functions.https.onRequest((request, response) => {
- response.send("Lepa Te sakam najvekje na cel svet!!!");
-});
+const express = require('express')
+const app = express();
 
-exports.getScreams = functions.https.onRequest((req, res) => {
+app.get('/screams', (req,res) => {
   admin.firestore().collection('screams').get()
     .then(data => {
       let screams = [];
@@ -17,7 +16,7 @@ exports.getScreams = functions.https.onRequest((req, res) => {
       return res.json(screams);
     })
     .catch(err => console.error(err));
-});
+})
 
 exports.createScreams = functions.https.onRequest((req, res) => {
   if(req.method !== 'POST') {
@@ -40,6 +39,8 @@ exports.createScreams = functions.https.onRequest((req, res) => {
       console.error(err);
     })
 });
+
+exports.api = functions.https.onRequest(app);
 
 
 
