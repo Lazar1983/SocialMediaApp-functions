@@ -1,11 +1,11 @@
 const { db, admin } = require('../util/admin');
 
-const config = require('../util/config')
-
-const { validateSignupData, validateLoginData } = require('../util/validators')
+const config = require('../util/config');
 
 const firebase = require('firebase');
 firebase.initializeApp(config);
+
+const { validateSignupData, validateLoginData } = require('../util/validators')
 
 exports.signup = (req, res) => {
   const newUser = {
@@ -21,7 +21,6 @@ exports.signup = (req, res) => {
 
   const noImg = 'f3d7ba51312a617b3be21d005a56ad30.jpg'
 
-  // TODO: validate data
   let token, userId;
   db.doc(`/users/${newUser.handle}`).get()
     .then((doc) => {
@@ -54,7 +53,7 @@ exports.signup = (req, res) => {
       if (err === 'auth/email-already-in-use') {
         return res.status(400).json({ email: "Email already in use"} )
       } else {
-        return res.status(500).json({ error: err.code });
+        return res.status(500).json({ general: 'Something went wrong, please try again' });
       }
     })
 }
@@ -94,8 +93,8 @@ exports.uploadImage = (req, res) => {
 
   const busboy = new BusBoy({ headers: req.headers });
 
-  let imageFileName;
   let imageToBeUploaded = {};
+  let imageFileName;
 
   busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
     console.log(fieldname);
