@@ -12,14 +12,14 @@ exports.signup = (req, res) => {
     email: req.body.email,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
-    handle: req.body.handle
+    handle: req.body.handle,
   };
 
   const { valid, errors } = validateSignupData(newUser);
 
   if(!valid) return res.status(400).json(errors);
 
-  const noImg = 'f3d7ba51312a617b3be21d005a56ad30.jpg'
+  const noImg = "f3d7ba51312a617b3be21d005a56ad30.jpg";
 
   let token, userId;
   db.doc(`/users/${newUser.handle}`).get()
@@ -41,7 +41,7 @@ exports.signup = (req, res) => {
         email: newUser.email,
         createdAt: new Date().toISOString(),
         imageUrl: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
-        userId
+        userId,
       };
       return db.doc(`/users/${newUser.handle}`).set(userCredentials);
     })
