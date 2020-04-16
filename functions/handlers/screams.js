@@ -1,8 +1,7 @@
 const { db } = require("../util/admin");
  
-exports.getAllScreams = (req,res) => {
-  db
-    .collection('screams')
+exports.getAllScreams = (req, res) => {
+  db.collection('screams')
     .orderBy('createdAt', 'desc')
     .get()
     .then((data) => {
@@ -12,13 +11,19 @@ exports.getAllScreams = (req,res) => {
           screamId: doc.id,
           body: doc.data().body,
           userHandle: doc.data().userHandle,
-          createdAt: doc.data().createdAt
+          createdAt: doc.data().createdAt,
+          commentCount: doc.data().commentCount,
+          likeCount: doc.data().likeCount,
+          userImage: doc.data().userImage
         });
       });
       return res.json(screams);
-      })
-    .catch((err) => console.error(err));
-}
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ error: err.code });
+    });
+};
 
 exports.postOneScream = (req, res) => {
   const newScream = {
@@ -197,5 +202,29 @@ exports.unlikeScream = (req, res) => {
     .catch((err) => {
       console.error(err);
       res.status(500).json({ error: err.code });
+    });
+};
+
+exports.deleteScream = (req, res) => {
+  const document = db.doc(`/screams/${req.params.screamId}`);
+  document
+    .get()
+    .then((doc) => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: 'Scream not found' });
+      }
+      // check if the user is a actual user of a scream
+      if (doc.data().userHandle !== req.user.handle) {
+        return res.status(403).json({ error: 'Unauthorized' });
+      } else {
+        return document.delete();
+      }
+    })
+    .then(() => {
+      res.json({ message: 'Scream deleted successfully' });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
     });
 };
