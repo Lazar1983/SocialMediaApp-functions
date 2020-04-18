@@ -205,6 +205,8 @@ exports.unlikeScream = (req, res) => {
     });
 };
 
+
+// Delete a scream
 exports.deleteScream = (req, res) => {
   const document = db.doc(`/screams/${req.params.screamId}`);
   document
@@ -213,7 +215,6 @@ exports.deleteScream = (req, res) => {
       if (!doc.exists) {
         return res.status(404).json({ error: 'Scream not found' });
       }
-      // check if the user is a actual user of a scream
       if (doc.data().userHandle !== req.user.handle) {
         return res.status(403).json({ error: 'Unauthorized' });
       } else {
