@@ -50,7 +50,7 @@ exports.signup = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      if (err === 'auth/email-already-in-use') {
+      if (err.code === 'auth/email-already-in-use') {
         return res.status(400).json({ email: "Email already in use"} )
       } else {
         return res.status(500).json({ general: 'Something went wrong, please try again' });
@@ -139,17 +139,17 @@ exports.getUserDetails = (req, res) => {
     });
 };
 
-// Get any user's details
+// Get own user details
 exports.getAuthenticatedUser = (req, res) => {
   let userData = {};
-  db.doc(`/users/${req.params.handle}`)
+  db.doc(`/users/${req.user.handle}`)
     .get()
     .then((doc) => {
       if (doc.exists) {
         userData.credentials = doc.data();
         return db
-          .collection('likes')
-          .where('userHandle', '==', req.user.handle)
+          .collection("likes")
+          .where("userHandle", "==", req.user.handle)
           .get();
       }
     })
@@ -159,9 +159,9 @@ exports.getAuthenticatedUser = (req, res) => {
         userData.likes.push(doc.data());
       });
       return db
-        .collection('notifications')
-        .where('recipient', '==', req.user.handle)
-        .orderBy('createdAt', 'decs')
+        .collection("notifications")
+        .where("recipient", "==", req.user.handle)
+        .orderBy("createdAt", "decs")
         .limit(10)
         .get();
     })
