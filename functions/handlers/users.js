@@ -161,7 +161,7 @@ exports.getAuthenticatedUser = (req, res) => {
       return db
         .collection("notifications")
         .where("recipient", "==", req.user.handle)
-        .orderBy("createdAt", "decs")
+        .orderBy("createdAt", "desc")
         .limit(10)
         .get();
     })
@@ -206,17 +206,17 @@ exports.uploadImage = (req, res) => {
     console.log(mimetype);
 
     //my.image.png
-    const imageExtension = filename.split('.')[filename.split('.') - 1];
+    const imageExtension = filename.split('.')[filename.split(".").length - 1];
     // 3283204.jpg
-    imageFileName = `${Math.round(Math.random()*100000000000)}.${imageExtension}`;
-    const filepath = path.join(os, tmpdir(), imageFileName);
+    imageFileName = `${Math.round(Math.random()*100000000000).toString()}.${imageExtension}`;
+    const filepath = path.join(os.tmpdir(), imageFileName);
     imageToBeUploaded = { filepath, mimetype };
     file.pipe(fs.createWriteStream(filepath));
 
   })
 
   busboy.on('finish', () => {
-    admin.storage().bucket().upload(imageToBeUploaded, filepath, {
+    admin.storage().bucket().upload(imageToBeUploaded.filepath, {
       resumable: false,
       metadata: {
         metadata: {
@@ -233,7 +233,7 @@ exports.uploadImage = (req, res) => {
     })
     .catch((err) => {
         console.error(err);
-        return res.status(500).json({ error: err.code });
+        return res.status(500).json({ error: 'Something went wrong' });
     })
   })
   
